@@ -1,0 +1,43 @@
+version: '3'
+services:
+  # Служба для базы данных MySQL
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: maniken385sao
+      MYSQL_DATABASE: lab1
+      MYSQL_PASSWORD: maniken385sao
+    ports:
+      - "3306:3306"
+
+  # Служба для вашего Node.js приложения
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+
+# Служба для контейнера с веб-сокетами
+  websocket:
+    build:
+      context: .
+      dockerfile: ./docker/websocket/Dockerfile
+    expose:
+      - "3001"
+    depends_on:
+      - mysql
+
+  # Служба для контейнера с NGINX
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - mysql
+      - websocket
